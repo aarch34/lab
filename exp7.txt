@@ -1,0 +1,95 @@
+Program 7: Creating Reports & Visualizations- Different types of charts, Formattingcharts
+with Title, Colors
+
+17 Most Common Charts available in Power BI:
+● Bar Chart
+● Line Chart
+● Scatterplot
+● Sparkline
+● Pie Chart
+● Gauge
+● Waterfall Chart
+● Funnel Chart
+● Heat Map / Matrix
+● Histogram
+● Box Plot
+● Maps
+● Tables
+● Indicators
+● Area Chart
+● Radar or Spider Chart
+● Tree Map
+
+Open Power BI Desktop
+● Click on Get data in ribbon pane
+● Click on Excel worksheet option
+Click on Transform Data button
+Power Query Editor window will open
+We have to perform some transformation on this table
+ Select row 1 and click on Use first row as header
+
+Then, we have to create new column for attrition count. For this, select attrition column
+ click on Add Column  new window will open then add details as follows. Once you
+are done with this, attrition count column will be added as a last row of the table
+ Change the datatype of this column to whole number
+Click on Close & Apply.
+You will be back on canvas area with table loaded in Data Pane (in right side).
+
+We will start with KPI Chart
+ A Key Performance Indicator (KPI) is a visual cue that communicates the amount of
+progress made toward a measurable goal
+
+Now format this particular visual with title, size, colour.
+1. Click on “Format your visual” in Visualization Pane
+2. Go to General tab
+a. click on Title  type “Overall Employees” in Text box, Horizontal alignment
+and colour of your choice
+b. expand effects  OFF the background of KPI chart
+c. Effects  ON visual border  change the color and 20 rounded corners
+3. Now, go to Visual tab  OFF the category label
+4. In visual tab, callout value  change the font color
+
+Kindly Note: If you want same format for all visuals, complete the formatting with one
+of the visual, click on format painter and click on the visual for which you want the
+formatting. Little bit formatting will be required as properties for each visual will be
+different
+Select Pie Chart.
+Now apply same steps for creating STACKED COLUMN CHART.
+A column chart, commonly referred to as a vertical bar graph, is a visual tool utilized to
+display and compare numerical data across different categories. Each column within the
+chart corresponds to a specific category, with the height of the column proportionally
+representing the associated value.
+
+Once sort age column is created change the datatype of column if its not in whole
+number.Click on “Close & Apply
+Now, on canvas, in data pane  select CP_age_band  click on sort by column  select
+newly created column sort age and now
+click on visual and follow the steps, Finally, output will be as follows:
+Finally, output will be as follows:
+Now apply same steps for creating MATRIX.
+The matrix visual is a type of table visual that supports a stepped layout. A table supports two
+dimensions, but a matrix makes it easier to display data meaningfully across multiple dimensions.
+Often, report designers include matrixes in reports and dashboards to allow users to select one or
+more element (rows, columns, cells) in the matrix to cross-highlight other visuals on a report
+page.
+Format the row header & column header  text color & background color
+Also, format the Row grand total & column grand total
+
+Now apply same steps for creating Stacked Bar Chart.
+
+Now apply same steps for creating Donut.
+A doughnut chart is similar to a pie chart in that it shows the relationship of parts to a
+whole. The only difference is that the center is blank and allows space for a label or
+icon.
+Doughnut charts work best when you use them to compare a particular section to the
+whole, rather than comparing individual sections with each other.
+
+Slicers: A slicer is a standalone chart that can be used to filter the other visuals on the
+page. Slicers come in many different formats (category, range, date, etc.) and can be
+formatted to allow selection of only one, many, or all of the available values.
+Slicers are a great choice to:
+ Display commonly used or important filters on the report canvas for easier access.
+ Make it easier to see the current filtered state without having to open a drop-down
+list.
+ Filter by columns that are unneeded and hidden in the data tables.
+ Create more focused reports by putting slicers next to important visuals.
