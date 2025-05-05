@@ -1,0 +1,53 @@
+import nltk
+import re
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('averaged_perceptron_tagger')
+
+def preprocess_text(text):
+   
+    tokens = word_tokenize(text)
+    print("Word Tokens:", tokens)
+    print("Sentence Tokens:", sent_tokenize(text))
+
+    
+    filtered_tokens = [word for word in tokens if re.match(r'^[a-zA-Z]+$', word)]
+    print("Filtered Tokens:", filtered_tokens)
+
+    grammar = r"NP: {<NNP><VBZ|VBD><DT><JJ>*<NN><.>}"  
+    chunkParser = nltk.RegexpParser(grammar)
+
+    sentences = ["Mary had a little lamb.", "John has a cute black pup.", "I ate five apples."]
+    print("Script Validation:")
+    def has_noun_phrase(sentence):
+        tagged = nltk.pos_tag(word_tokenize(sentence))
+        parsed = chunkParser.parse(tagged)
+        for subtree in parsed:
+            if isinstance(subtree, nltk.Tree) and subtree.label() == 'NP':
+                return True
+        return False
+
+    for sentence in sentences:
+        print(f"'{sentence}': {has_noun_phrase(sentence)}")
+
+    
+    stop_words = set(stopwords.words('english'))
+    tokens_without_stopwords = [word for word in filtered_tokens if word.lower() not in stop_words]
+    print("Tokens without Stopwords:", tokens_without_stopwords)
+
+
+    stemmer = PorterStemmer()
+    stemmed_tokens = [stemmer.stem(word) for word in tokens_without_stopwords]
+    print("Stemmed Tokens:", stemmed_tokens)
+
+    return stemmed_tokens
+
+
+text = "This is an example text! It includes different words, numbers like 123, and punctuation."
+processed_text = preprocess_text(text)
+print("Processed Tokens:", processed_text)

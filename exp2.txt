@@ -1,0 +1,34 @@
+import nltk
+from nltk import word_tokenize, FreqDist
+from nltk.util import ngrams
+from collections import defaultdict
+import math
+
+
+nltk.download('punkt')
+
+def compute_ngram_probabilities(text, n):
+    """Compute n-gram probabilities for a given text."""
+    tokens = word_tokenize(text.lower()) 
+    n_grams = list(ngrams(tokens, n))
+    total_ngrams = len(n_grams)
+    ngram_freq = FreqDist(n_grams)
+
+  
+    ngram_probabilities = {}
+    for ngram, freq in ngram_freq.items():
+        ngram_probabilities[ngram] = freq / total_ngrams
+
+    return ngram_probabilities
+
+def display_ngram_probabilities(text, max_n=3):
+    """Compute and display unigram, bigram, and trigram probabilities."""
+    for n in range(1, max_n + 1):
+        print(f"\n{n}-Gram Probabilities:")
+        ngram_probs = compute_ngram_probabilities(text, n)
+        for ngram, prob in ngram_probs.items():
+            print(f"{ngram}: {prob:.4f}")
+
+
+text = "The quick brown fox jumps over the lazy dog. The fox is quick and clever."
+display_ngram_probabilities(text)

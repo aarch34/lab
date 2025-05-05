@@ -1,0 +1,99 @@
+import nltk
+from nltk.corpus import brown, inaugural, reuters, udhr
+from nltk.probability import ConditionalFreqDist
+from nltk.tag import UnigramTagger
+from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet as wn
+from collections import Counter
+import string
+
+
+nltk.download("brown")
+nltk.download("inaugural")
+nltk.download("reuters")
+nltk.download("udhr")
+nltk.download("averaged_perceptron_tagger")
+nltk.download("punkt")
+nltk.download("universal_tagset")
+nltk.download("wordnet")
+
+
+def explore_corpus():
+    print("Brown Corpus Categories:", brown.categories())
+    print("First 100 words from Brown Corpus:", brown.words()[:100])
+    print("First 100 words from Inaugural Corpus:", inaugural.words()[:100])
+    print("First 100 words from Reuters Corpus:", reuters.words()[:100])
+    print("UDHR Corpus Samples:", udhr.words('English-Latin1')[:100])
+
+
+def create_custom_corpus():
+    corpus_text = "Natural Language Processing is amazing. It is a subset of Artificial Intelligence."
+    with open("custom_corpus.txt", "w") as f:
+        f.write(corpus_text)
+    with open("custom_corpus.txt", "r") as f:
+        text = f.read()
+    print("Custom Corpus Text:", text)
+
+
+def conditional_frequency():
+    cfd = ConditionalFreqDist(
+        (genre, word.lower()) 
+        for genre in brown.categories() 
+        for word in brown.words(categories=genre)
+    )
+    print("Most common words in 'news' category:", cfd["news"].most_common(10))
+
+
+def tagged_corpora():
+    print("Tagged words from Brown Corpus:", brown.tagged_words(tagset='universal')[:20])
+
+
+def most_frequent_noun_tags():
+    tagged_words = brown.tagged_words(tagset='universal')
+    noun_tags = [word.lower() for word, tag in tagged_words if tag == 'NOUN']
+    noun_counts = Counter(noun_tags)
+    print("Most frequent nouns:", noun_counts.most_common(10))
+
+
+def map_words_to_properties():
+    words = ["car", "apple", "computer", "python"]
+    word_properties = {word: wn.synsets(word) for word in words}
+    for word, properties in word_properties.items():
+        print(f"{word}: {[synset.definition() for synset in properties][:2]}")
+
+
+def rule_based_tagger():
+    tagged_sents = brown.tagged_sents(categories='news')
+    unigram_tagger = UnigramTagger(tagged_sents[:5000])
+    test_sent = word_tokenize("The quick brown fox jumps over the lazy dog")
+    print("Tagged sentence:", unigram_tagger.tag(test_sent))
+
+
+def split_text_without_spaces(text, corpus_words):
+    found_words = []
+    start = 0
+    while start < len(text):
+        for end in range(len(text), start, -1):
+            word = text[start:end]
+            if word in corpus_words:
+                found_words.append(word)
+                start = end - 1
+                break
+        start += 1
+    return found_words
+
+
+if __name__ == "__main__":
+    explore_corpus()
+    create_custom_corpus()
+    conditional_frequency()
+    tagged_corpora()
+    most_frequent_noun_tags()
+    map_words_to_properties()
+    rule_based_tagger()
+
+
+    corpus_words = set(word.lower() for word in brown.words())
+    text = "thequickbrownfoxjumpsoverthelazydog"
+    found_words = split_text_without_spaces(text, corpus_words)
+    print("Segmented Words:", found_words)
