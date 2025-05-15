@@ -1,53 +1,41 @@
-import nltk
-import re
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.datasets import load_iris
 
+# Load the Iris dataset from sklearn
+iris = load_iris()
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('averaged_perceptron_tagger')
+# Create a DataFrame with feature data and column names
+df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
 
-def preprocess_text(text):
-   
-    tokens = word_tokenize(text)
-    print("Word Tokens:", tokens)
-    print("Sentence Tokens:", sent_tokenize(text))
+# Add target variable (species) as a categorical column
+df['species'] = pd.Categorical.from_codes(iris.target, iris.target_names)
 
-    
-    filtered_tokens = [word for word in tokens if re.match(r'^[a-zA-Z]+$', word)]
-    print("Filtered Tokens:", filtered_tokens)
+# Display the first few rows of the DataFrame
+print(df.head())
 
-    grammar = r"NP: {<NNP><VBZ|VBD><DT><JJ>*<NN><.>}"  
-    chunkParser = nltk.RegexpParser(grammar)
+# Display the 'species' column
+print("\nSpecies column:")
+print(df['species'].head())
 
-    sentences = ["Mary had a little lamb.", "John has a cute black pup.", "I ate five apples."]
-    print("Script Validation:")
-    def has_noun_phrase(sentence):
-        tagged = nltk.pos_tag(word_tokenize(sentence))
-        parsed = chunkParser.parse(tagged)
-        for subtree in parsed:
-            if isinstance(subtree, nltk.Tree) and subtree.label() == 'NP':
-                return True
-        return False
+# 1. Select a numerical column (e.g., 'sepal length (cm)')
+numerical_column = 'sepal length (cm)'
 
-    for sentence in sentences:
-        print(f"'{sentence}': {has_noun_phrase(sentence)}")
+# 2. Compute statistical values
+mean_value = df[numerical_column].mean()
+median_value = df[numerical_column].median()
+mode_value = df[numerical_column].mode()[0]
+std_dev = df[numerical_column].std()
+variance = df[numerical_column].var()
+data_range = df[numerical_column].max() - df[numerical_column].min()
 
-    
-    stop_words = set(stopwords.words('english'))
-    tokens_without_stopwords = [word for word in filtered_tokens if word.lower() not in stop_words]
-    print("Tokens without Stopwords:", tokens_without_stopwords)
-
-
-    stemmer = PorterStemmer()
-    stemmed_tokens = [stemmer.stem(word) for word in tokens_without_stopwords]
-    print("Stemmed Tokens:", stemmed_tokens)
-
-    return stemmed_tokens
-
-
-text = "This is an example text! It includes different words, numbers like 123, and punctuation."
-processed_text = preprocess_text(text)
-print("Processed Tokens:", processed_text)
+# 3. Print the computed values
+print(f"\nDescriptive Statistics for '{numerical_column}':")
+print(f"Mean               : {mean_value:.2f}")
+print(f"Median             : {median_value:.2f}")
+print(f"Mode               : {mode_value:.2f}")
+print(f"Standard Deviation : {std_dev:.2f}")
+print(f"Variance           : {variance:.2f}")
+print(f"Range              : {data_range:.2f}")
