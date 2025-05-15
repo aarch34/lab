@@ -1,34 +1,33 @@
-import nltk
-from nltk import word_tokenize, FreqDist
-from nltk.util import ngrams
-from collections import defaultdict
-import math
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
+# Step 1: Load the Iris dataset
+iris = sns.load_dataset('iris')
 
-nltk.download('punkt')
+# Step 2: Plot a scatter plot of two numerical variables (e.g., 'sepal_length' and 'sepal_width')
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=iris, x='sepal_length', y='sepal_width')
+plt.title('Scatter Plot: Sepal Length vs Sepal Width')
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.show()
+# Step 3: Calculate the Pearson correlation coefficient
+pearson_corr = iris[['sepal_length', 'sepal_width']].corr(method='pearson')
+print(f"Pearson Correlation Coefficient between Sepal Length and Sepal Width: 
+{pearson_corr.iloc[0, 1]}")
 
-def compute_ngram_probabilities(text, n):
-    """Compute n-gram probabilities for a given text."""
-    tokens = word_tokenize(text.lower()) 
-    n_grams = list(ngrams(tokens, n))
-    total_ngrams = len(n_grams)
-    ngram_freq = FreqDist(n_grams)
+# Step 4: Compute the covariance and correlation matrix
+cov_matrix = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].cov()
+corr_matrix = iris[['sepal_length', 'sepal_width', 'petal_length', 'petal_width']].corr()
 
-  
-    ngram_probabilities = {}
-    for ngram, freq in ngram_freq.items():
-        ngram_probabilities[ngram] = freq / total_ngrams
-
-    return ngram_probabilities
-
-def display_ngram_probabilities(text, max_n=3):
-    """Compute and display unigram, bigram, and trigram probabilities."""
-    for n in range(1, max_n + 1):
-        print(f"\n{n}-Gram Probabilities:")
-        ngram_probs = compute_ngram_probabilities(text, n)
-        for ngram, prob in ngram_probs.items():
-            print(f"{ngram}: {prob:.4f}")
-
-
-text = "The quick brown fox jumps over the lazy dog. The fox is quick and clever."
-display_ngram_probabilities(text)
+# Print covariance and correlation matrix
+print("\nCovariance Matrix:\n", cov_matrix)
+print("\nCorrelation Matrix:\n", corr_matrix)
+# Step 5: Visualize the correlation matrix using a heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='PiYG', vmin=-1, vmax=1, cbar=True, 
+            fmt='.2f')
+plt.title('Correlation Matrix Heatmap')
+plt.show()
