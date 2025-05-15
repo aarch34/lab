@@ -1,65 +1,43 @@
-import nltk
-from collections import defaultdict
-from nltk.probability import FreqDist
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_openml
+from numpy.linalg import inv
+# Load Boston Housing dataset
+boston = fetch_openml(name='boston', version=1, as_frame=True)
+X = boston.data['RM'].values  # Selecting the 'RM' feature (average number of rooms)
+print(X)
+y = boston.target.values
 
+def get_weights(X, x_query, tau):
+    """Compute weights using Gaussian Kernel"""
+    return np.exp(-((X - x_query) ** 2) / (2 * tau ** 2))
+def locally_weighted_regression(X, y, tau, x_queries):
+    """Perform LWR for each query point"""
+    y_pred = []
+    for x_query in x_queries:
+        W = np.diag(get_weights(X, x_query, tau))
+        print(W)
+        X_bias = np.c_[np.ones(X.shape[0]), X]  # Add bias term
+        theta = inv(X_bias.T @ W @ X_bias) @ X_bias.T @ W @ y
+        y_pred.append(np.dot([1, x_query], theta))
+    return np.array(y_pred)
 
-nltk.download('punkt')
+# Sort X for plotting
+X_sorted = np.sort(X)
+print(X_sorted)
+y_sorted = y[np.argsort(X)]
+print(y_sorted)
+x_queries = np.linspace(X.min(), X.max(), 100)
+print(x_queries)
 
+tau = 0.5  # Bandwidth parameter
+y_pred = locally_weighted_regression(X, y, tau, x_queries)
 
-train_data = [
-    ("fun, couple, love, love", "comedy"),
-    ("fast, furious, shoot", "action"),
-    ("couple, fly, fast, fun, fun", "comedy"),
-    ("furious, shoot, shoot, fun", "action"),
-    ("fly, fast, shoot, love", "action")
-]
-
-
-category_words = defaultdict(list)
-all_words = set()
-category_counts = defaultdict(int)
-
-for text, category in train_data:
-    words = [w.strip() for w in text.split(',')]
-    category_words[category].extend(words)
-    all_words.update(words)
-    category_counts[category] += 1
-
-total_docs = len(train_data)
-total_vocab = len(all_words)
-
-
-priors = {category: category_counts[category] / total_docs for category in category_counts}
-
-
-likelihoods = {}
-for category in category_words:
-    freq_dist = FreqDist(category_words[category])
-    total_category_words = len(category_words[category])
-    likelihoods[category] = {
-        word: (freq_dist[word] + 1) / (total_category_words + total_vocab)
-        for word in all_words
-    }
-
-
-D = "fast, couple, shoot, fly"
-D_words = [w.strip() for w in D.split(',')]
-posteriors = {}
-
-for category in category_words:
-    posterior = priors[category]  
-    for word in D_words:
-        
-        posterior *= likelihoods[category].get(
-            word, 1 / (len(category_words[category]) + total_vocab)
-        )
-    posteriors[category] = posterior
-
-
-predicted_category = max(posteriors, key=posteriors.get)
-print("Predicted category for D:", predicted_category)
-
-
-print("\nPosterior probabilities:")
-for category, prob in posteriors.items():
-    print(f"{category}: {prob:.6f}")
+# Plot the results
+plt.scatter(X, y, label='Data points', color='blue', alpha=0.5)
+plt.plot(x_queries, y_pred, label='LWR Fit', color='red', linewidth=2)
+plt.xlabel('Average number of rooms (RM)')
+plt.ylabel('House price')
+plt.title(f'Locally Weighted Regression (tau={tau})')
+plt.legend()
+plt.show()
