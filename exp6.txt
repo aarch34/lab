@@ -1,99 +1,95 @@
-import nltk
-from nltk.corpus import brown, inaugural, reuters, udhr
-from nltk.probability import ConditionalFreqDist
-from nltk.tag import UnigramTagger
-from nltk.tokenize import word_tokenize
-from nltk.corpus import wordnet as wn
-from collections import Counter
-import string
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 
-nltk.download("brown")
-nltk.download("inaugural")
-nltk.download("reuters")
-nltk.download("udhr")
-nltk.download("averaged_perceptron_tagger")
-nltk.download("punkt")
-nltk.download("universal_tagset")
-nltk.download("wordnet")
+url = "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
+df = pd.read_csv(url)
+print(df)
 
 
-def explore_corpus():
-    print("Brown Corpus Categories:", brown.categories())
-    print("First 100 words from Brown Corpus:", brown.words()[:100])
-    print("First 100 words from Inaugural Corpus:", inaugural.words()[:100])
-    print("First 100 words from Reuters Corpus:", reuters.words()[:100])
-    print("UDHR Corpus Samples:", udhr.words('English-Latin1')[:100])
+X = df[['rm']]        
+y = df['medv']        
 
 
-def create_custom_corpus():
-    corpus_text = "Natural Language Processing is amazing. It is a subset of Artificial Intelligence."
-    with open("custom_corpus.txt", "w") as f:
-        f.write(corpus_text)
-    with open("custom_corpus.txt", "r") as f:
-        text = f.read()
-    print("Custom Corpus Text:", text)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 
-def conditional_frequency():
-    cfd = ConditionalFreqDist(
-        (genre, word.lower()) 
-        for genre in brown.categories() 
-        for word in brown.words(categories=genre)
-    )
-    print("Most common words in 'news' category:", cfd["news"].most_common(10))
+model = LinearRegression()
+model.fit(X_train, y_train)
 
 
-def tagged_corpora():
-    print("Tagged words from Brown Corpus:", brown.tagged_words(tagset='universal')[:20])
+y_pred = model.predict(X_test)
 
 
-def most_frequent_noun_tags():
-    tagged_words = brown.tagged_words(tagset='universal')
-    noun_tags = [word.lower() for word, tag in tagged_words if tag == 'NOUN']
-    noun_counts = Counter(noun_tags)
-    print("Most frequent nouns:", noun_counts.most_common(10))
+plt.figure(figsize=(10, 6))
 
 
-def map_words_to_properties():
-    words = ["car", "apple", "computer", "python"]
-    word_properties = {word: wn.synsets(word) for word in words}
-    for word, properties in word_properties.items():
-        print(f"{word}: {[synset.definition() for synset in properties][:2]}")
+sns.scatterplot(x=X_test["rm"], y=y_test.values.flatten(), color='blue', label='Actual Prices')
 
 
-def rule_based_tagger():
-    tagged_sents = brown.tagged_sents(categories='news')
-    unigram_tagger = UnigramTagger(tagged_sents[:5000])
-    test_sent = word_tokenize("The quick brown fox jumps over the lazy dog")
-    print("Tagged sentence:", unigram_tagger.tag(test_sent))
+x_range = np.linspace(X['rm'].min(), X['rm'].max(), 100).reshape(-1, 1)
+y_range = lin_reg.predict(x_range)
+plt.plot(x_range, y_range, color='red', label='Regression Line')
 
 
-def split_text_without_spaces(text, corpus_words):
-    found_words = []
-    start = 0
-    while start < len(text):
-        for end in range(len(text), start, -1):
-            word = text[start:end]
-            if word in corpus_words:
-                found_words.append(word)
-                start = end - 1
-                break
-        start += 1
-    return found_words
+plt.xlabel("Average Number of Rooms (RM)")
+plt.ylabel("Median House Price ($1000s)")
+plt.title("Linear Regression - Boston Housing Dataset")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import PolynomialFeatures, StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 
-if __name__ == "__main__":
-    explore_corpus()
-    create_custom_corpus()
-    conditional_frequency()
-    tagged_corpora()
-    most_frequent_noun_tags()
-    map_words_to_properties()
-    rule_based_tagger()
+url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/mpg.csv"
+df = pd.read_csv(url)
+print(df)
 
 
-    corpus_words = set(word.lower() for word in brown.words())
-    text = "thequickbrownfoxjumpsoverthelazydog"
-    found_words = split_text_without_spaces(text, corpus_words)
-    print("Segmented Words:", found_words)
+df.dropna(inplace=True)
+
+
+# Select "horsepower" as feature and "mpg" as target
+X = df[['horsepower']]
+y = df['mpg']
+print(X)
+print(y)
+
+# Standardize feature
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+print(X_scaled)
+
+# Train Polynomial Regression Model (degree = 3)
+poly_model = make_pipeline(PolynomialFeatures(degree=3), LinearRegression())
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+poly_model.fit(X_train, y_train)
+y_poly_pred = poly_model.predict(X_test)
+
+# Sort values for smooth curve
+sorted_indices = np.argsort(X_test[:, 0])
+X_test_sorted = X_test[sorted_indices]
+y_poly_pred_sorted = y_poly_pred[sorted_indices]
+
+
+# Plot Results
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=X_test[:, 0], y=y_test, label="Actual MPG", color="blue")
+sns.lineplot(x=X_test_sorted[:, 0], y=y_poly_pred_sorted, label="Polynomial Fit", color="red")
+plt.xlabel("Horsepower (Standardized)")
+plt.ylabel("Miles Per Gallon (MPG)")
+plt.title("Polynomial Regression - Auto MPG")
+plt.legend()
+plt.show()
