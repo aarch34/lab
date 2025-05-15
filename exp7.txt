@@ -1,28 +1,29 @@
-import nltk
-nltk.download('wordnet')
-nltk.download('omw-1.4')
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
-from nltk.corpus import wordnet
+url = "https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv"
+df = pd.read_csv(url)
+print(df)
 
-def get_synonyms_antonyms(word):
-    synonyms = set()
-    antonyms = set()
-    for syn in wordnet.synsets(word):
-        for lemma in syn.lemmas():
-            
-            synonyms.add(lemma.name())
-           
-            if lemma.antonyms():
-                for ant in lemma.antonyms():
-                    antonyms.add(ant.name())
-    return synonyms, antonyms
+x = df[['rm']]
+y = df['medv']
 
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
-word = "active"
-synonyms, antonyms = get_synonyms_antonyms(word)
+lin_reg = LinearRegression()
+lin_reg.fit(x_train, y_train)
+y_pred = lin_reg.predict(x_test)
 
-print(f"Synonyms of '{word}':")
-print(", ".join(sorted(synonyms)))
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=x_test['rm'], y=y_test, label='Actual Prices', color='blue')
+sns.lineplot(x=x_test['rm'], y=y_pred, label='Regression Line', color='red')
 
-print(f"\nAntonyms of '{word}':")
-print(", ".join(sorted(antonyms)))
+plt.xlabel("Average Number of Rooms (RM)")
+plt.ylabel("Median House Price ($000s)")
+plt.title("Linear Regression - Boston Housing")
+plt.legend()
+plt.show()
